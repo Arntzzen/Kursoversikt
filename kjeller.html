@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Interaktiv plantegning – responsiv</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="container">
+  <img src="Bilder/Plantegning Kjeller.jpg" alt="Plantegning" />
+  <!-- Her er alle sikringsskap i etasjen-->
+  <div class="sikringsskap" id="mangler_navn">Mangler_navn</div>          <!-- Finn system for sikringsskapene -->
+  
+   <!-- Her er alle rom i etasjen -->
+  <div class="rom" id="arkiv" data-target="">Arkiv</div>
+  <div class="rom" id="kraftraum" data-target="mangler_navn">Kraftraum</div>
+</div>
+
+<script>
+  document.querySelectorAll('.rom').forEach(rom => {
+    rom.addEventListener('click', () => {
+      // Fjern markering fra alle rom først
+      document.querySelectorAll('.rom').forEach(r => r.classList.remove('markert'));
+      
+      // Marker den som ble trykket på
+      rom.classList.add('markert');
+
+      // Fjern aktiv fra alle sikringsskap
+      document.querySelectorAll('.sikringsskap').forEach(s => s.classList.remove('aktiv'));
+
+      // Finn riktig sikringsskap
+      const targetId = rom.dataset.target; // henter verdien i data-target
+      if (targetId) {
+        const manglernavn = document.getElementById(targetId);
+        if (manglernavn) manglernavn.classList.add('aktiv');
+      }
+    });
+  });
+</script>
+</body>
+</html>

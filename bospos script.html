@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Finn koordinater og generer kode</title>
+  <style>
+    #container {
+      position: relative;
+      width: 100%;
+      /*max-width: 1510px; /* ny bildebredde */
+      margin: auto;
+    }
+    #container img {
+      width: 100%;
+      height: auto;
+      display: block;
+      cursor: crosshair;
+      -webkit-user-drag: none; /* hindrer bilde-dragging på Mac */
+      pointer-events: none;    /* lar musen gå "gjennom" bildet */
+    }
+    /* Markeringsrektangel */
+    #selectionBox {
+      position: absolute;
+      border: 2px dashed red;
+      background-color: rgba(255, 0, 0, 0.2);
+      display: none;
+      pointer-events: none;
+    }
+    /* Output-boksen */
+    #outputBox {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      font-family: monospace;
+      white-space: pre;
+      background: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+
+<div id="container">
+  <img src="Bilder/plantegning kjeller.jpg" alt="Plantegning" id="plantegning" draggable="false">
+  <div id="selectionBox"></div>
+</div>
+
+<div id="outputBox">Dra et område på bildet for å generere kode...</div>
+
+<script>
+  const container = document.getElementById('container');
+  const selectionBox = document.getElementById('selectionBox');
+  const outputBox = document.getElementById('outputBox');
+
+  let startX, startY, isDrawing = false;
+
+  container.addEventListener('mousedown', function(e) {
+    const rect = container.getBoundingClientRect();
+    startX = e.clientX - rect.left;
+    startY = e.clientY - rect.top;
+    isDrawing = true;
+
+    selectionBox.style.left = `${startX}px`;
+    selectionBox.style.top = `${startY}px`;
+    selectionBox.style.width = `0px`;
+    selectionBox.style.height = `0px`;
+    selectionBox.style.display = 'block';
+  });
+
+  container.addEventListener('mousemove', function(e) {
+    if (!isDrawing) return;
+
+    const rect = container.getBoundingClientRect();
+    const currentX = e.clientX - rect.left;
+    const currentY = e.clientY - rect.top;
+
+    const width = currentX - startX;
+    const height = currentY - startY;
+
+    selectionBox.style.left = `${Math.min(startX, currentX)}px`;
+    selectionBox.style.top = `${Math.min(startY, currentY)}px`;
+    selectionBox.style.width = `${Math.abs(width)}px`;
+    selectionBox.style.height = `${Math.abs(height)}px`;
+  });
+
+  container.addEventListener('mouseup', function(e) {
+    if (!isDrawing) return;
+    isDrawing = false;
+
+    const rect = container.getBoundingClientRect();
+    const boxRect = selectionBox.getBoundingClientRect();
+
+    const leftPercent = ((boxRect.left - rect.left) / rect.width) * 100;
+    const topPercent = ((boxRect.top - rect.top) / rect.height) * 100;
+    const widthPercent = (boxRect.width / rect.width) * 100;
+    const heightPercent = (boxRect.height / rect.height) * 100;
+
+    selectionBox.style.display = 'none';
+
+    // Automatisk unik ID basert på tid
+    const uniqueId = "rom_" + Date.now();
+
+    const htmlCode = `<a href="Bilder/ROMNAVN.jpeg" target="_blank" class="rom" id="${uniqueId}">ROMNAVN</a>`;
+    const cssCode = `#${uniqueId} {\n  top: ${topPercent.toFixed(2)}%;\n  left: ${leftPercent.toFixed(2)}%;\n  width: ${widthPercent.toFixed(2)}%;\n  height: ${heightPercent.toFixed(2)}%;\n}`;
+
+    const output = `/* HTML */\n${htmlCode}\n\n/* CSS */\n${cssCode}`;
+    console.log(output);
+    outputBox.textContent = output;
+  });
+</script>
+
+</body>
+</html>
